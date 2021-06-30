@@ -1463,7 +1463,8 @@ abstract class Model implements Arrayable, ArrayAccess, HasBroadcastChannel, Jso
         );
 
         $this->load(collect($this->relations)->reject(function ($relation, $name) {
-            return ! method_exists($this, $name);
+            return $relation instanceof Pivot
+                || (is_object($relation) && in_array(AsPivot::class, class_uses_recursive($relation), true));
         })->keys()->all());
 
         $this->syncOriginal();
