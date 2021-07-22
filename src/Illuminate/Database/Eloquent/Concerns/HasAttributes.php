@@ -1050,18 +1050,18 @@ trait HasAttributes
             return Date::instance(Carbon::createFromFormat('Y-m-d', $value)->startOfDay());
         }
 
-        $format = $this->getDateFormat();
+        // If there is no format specified, we just try to parse the date
+        if (!$this->getDateFormat()) {
+            return Date::parse($value);
+        }
+        
+        // Append "+" to date format so trailing data will not cause an error, but a warning instead
+        $format = $this->getDateFormat() . '+';
 
         // Finally, we will just assume this date is in the format used by default on
         // the database connection and use that format to create the Carbon object
         // that is returned back out to the developers after we convert it here.
-        try {
-            $date = Date::createFromFormat($format, $value);
-        } catch (InvalidArgumentException $e) {
-            $date = false;
-        }
-
-        return $date ?: Date::parse($value);
+        return Date::createFromFormat($format, $value);
     }
 
     /**
